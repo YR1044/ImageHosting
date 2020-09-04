@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图床</title>
+
+</head>
+<style>
+    li {
+        list-style: none;
+        display: inline-block;
+        width: 33.3%;
+        text-align: center;
+        overflow: hidden;
+        vertical-align: bottom;
+    }
+    
+    li {
+        list-style: none;
+        float: left;
+        width: 33.3%;
+        /*三列图片排列*/
+        height: 30%;
+        /*当图片尺寸不一的时候，设置一个高度*/
+        overflow: hidden;
+        /*超出隐藏*/
+    }
+    
+    li img {
+        position: relative;
+        width: 100%;
+        top: 50%;
+        /*li高度的一半*/
+        transform: translateY(-50%);
+        /*再向上移动自身的50%*/
+    }
+    
+    .content {
+        width: 80%;
+        padding: 10px 0;
+        overflow: hidden;
+    }
+    
+    .img-wrap {
+        padding: 10px;
+        background-color: #fff;
+        border: 1px solid #ccc;
+    }
+    
+    .img-box {
+        height: 200px;
+        overflow: hidden;
+    }
+    
+    .img-box img {
+        position: relative;
+        width: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    
+    .button {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        cursor: pointer;
+        margin: 0 auto;
+    }
+</style>
+
+<body>
+    <ul id="main">
+    </ul>
+    <div style="clear: both;"></div>
+    <div style="text-align:center;">
+        <a id="prepage" class="button" style="display: none;" href="#" onclick="prePage()">上一页</a>
+        <a id="nextpage" class="button" style="display: none;" href="#" onclick="nextPage()">下一页</a>
+    </div>
+    <script>
+        //config 配置项
+        var perPage = 9; //每页图片数量
+        var types = ["png", "jpg", "gif","webp"]; //可能的后缀
+
+        // 全局变量，无需改动
+        var page = 0;
+        var current = 0;
+        var typeIndex = 0;
+
+        var img;
+
+
+        function writeDom(url) {
+            var string = '<li> <div class="content"><div class="img-wrap"><div  class="img-box"> <img src="' + url + '"</li>';
+            document.getElementById("main").innerHTML += string;
+        }
+
+        function writeImages(typeIndex) {
+            if (!typeIndex) {
+                typeIndex = 0;
+            }
+            if (typeIndex == 0) {
+                current++;
+            }
+            var src = "./images/" + (page * perPage + current) + "." + types[typeIndex];
+            img = new Image();
+            img.onload = function() {
+                writeDom(src);
+                if (current < perPage) {
+                    writeImages();
+                } else {
+                    img.src = "./images/" + (page * perPage + ++current) + "." + types[typeIndex];
+                    img.onload = function() {
+                        document.getElementById("nextpage").style.display = "";
+                    }
+                }
+            }
+            img.onerror = function(err) {
+                if (typeIndex == types.length - 1) {
+                    document.getElementById("nextpage").style.display = "none";
+                } else {
+                    writeImages(++typeIndex);
+                }
+            }
+            img.src = src;
+        }
+
+        function nextPage() {
+            document.getElementById("prepage").style.display = "";
+            document.getElementById("nextpage").style.display = "none";
+            document.getElementById("main").innerHTML = "";
+            page++;
+            current = 0;
+            writeImages();
+        }
+
+        function prePage() {
+            document.getElementById("main").innerHTML = "";
+            page--;
+            if (page == 0) {
+                document.getElementById("prepage").style.display = "none";
+            }
+            current = 0;
+            writeImages();
+        }
+        writeImages();
+    </script>
+</body>
+
+</html>
